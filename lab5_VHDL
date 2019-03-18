@@ -1,0 +1,476 @@
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+-- ALU_Design_Src
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+----------------------------------------------------------------------------------
+-- ENTITY DECLARATION FOR 1-BIT ALU
+----------------------------------------------------------------------------------
+
+entity alu_1bit is
+    Port (
+           A     : in STD_LOGIC;
+           B     : in STD_LOGIC;
+           C_In  : in STD_LOGIC;
+           OP0   : in STD_LOGIC;
+           OP1   : in STD_LOGIC;
+           Carry : out STD_LOGIC;
+           Result: out STD_LOGIC
+         );
+end alu_1bit;
+
+----------------------------------------------------------------------------------
+-- ARCHITECTURE DECLARATION FOR 1-BIT ALU
+----------------------------------------------------------------------------------
+
+architecture structure of alu_1bit is
+
+    component and_gate                              -- AND Component Declaration
+        port ( i1, i2 : in std_logic; o1 : out std_logic );
+    end component;
+
+    component or_gate                               -- OR Component Declaration
+        port ( i1, i2 : in std_logic; o1 : out std_logic );
+    end component;
+
+    component xor_gate                              -- XOR Component Declaration
+        port ( i1, i2 : in std_logic; o1 : out std_logic );
+    end component;
+
+    component full_adder                            -- ADDER Component Declaration
+        port ( A, B, C_In : in std_logic;
+               Sum, C_Out     : out std_logic );
+    end component;
+
+    component mux_4to1                              -- MUX Component Declaration
+        port ( D0, D1, D2, D3, C0, C1 : in std_logic;
+               M                      : out std_logic );
+    end component;
+
+signal S0, S1, S2, S3 : std_logic;                  -- Signal Declarations
+
+begin
+
+    u1 : and_gate port map ( i1 => A, i2 => B, o1 => S0 );
+    u2 : or_gate port map ( i1 => A, i2 => B, o1 => S1 );
+    u3 : xor_gate port map ( i1 => A, i2 => B, o1 => S2 );
+    u4 : full_adder port map ( A => A, B => B, C_In => C_In, Sum => S3, C_Out => Carry );
+    u5 : mux_4to1 port map ( D0 => S0, D1 => S1, D2 => S2, D3 => S3, C0 => OP0, C1 => OP1, M => Result );
+
+end structure;
+
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+-- TEST_BENCH
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity alu_tb is
+--  Port ( );
+end alu_tb;
+
+architecture alu_tb of alu_tb is
+
+    -- Declaration of component to test
+    component alu_1bit
+        Port (
+               A     : in STD_LOGIC;
+               B     : in STD_LOGIC;
+               C_In  : in STD_LOGIC;
+               OP0   : in STD_LOGIC;
+               OP1   : in STD_LOGIC;
+               Carry : out STD_LOGIC;
+               Result: out STD_LOGIC
+             );
+    end component;
+
+-- Input signals of component
+signal A      : std_logic := '0';
+signal B      : std_logic := '0';
+signal C_In   : std_logic := '1';
+signal OP0    : std_logic := '0';
+signal OP1    : std_logic := '0';
+
+-- Output signals of component
+signal Carry  : std_logic;
+signal Result : std_logic;
+
+begin
+
+    -- Instantiation of Unit Under Test (UUT)
+    UUT : alu_1bit
+    port map (
+               A       => A,
+               B       => B,
+               C_In    => C_In,
+               OP0     => OP0,
+               OP1     => OP1,
+               Carry   => Carry,
+               Result  => Result
+             );
+
+    -- Stimulus Block to generate test signals for the UUT
+   -- Stim_Proc : process
+    --begin
+
+        A    <= NOT A after 80ns;
+        B    <= NOT B after 40ns;
+        OP0  <= NOT OP0 after 10ns;
+        OP1  <= NOT OP1 after 20ns;
+
+    --end process;
+
+end alu_tb;
+
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+-- ADDER
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+-- ENTITY & ARCHITECTURE DECLARATION FOR XOR, AND, & OR GATES
+----------------------------------------------------------------------------------
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity and_gate is
+    port ( i1, i2 : in std_logic; o1 : out std_logic );
+end and_gate;
+
+architecture entity_1 of and_gate is
+begin
+o1 <= i2 AND i2;
+end entity_1;
+
+---------------------------------------------------------------------------------
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity xor_gate is
+    port ( i1, i2 : in std_logic; o1 : out std_logic );
+end xor_gate;
+
+architecture entity_1 of xor_gate is
+begin
+o1 <= i1 XOR i2;
+end entity_1;
+
+---------------------------------------------------------------------------------
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity or_gate is
+    port ( i1, i2 : in std_logic; o1 : out std_logic );
+end or_gate;
+
+architecture entity_1 of or_gate is
+begin
+o1 <= i1 OR i2;
+end entity_1;
+
+----------------------------------------------------------------------------------
+-- ENTITY DECLARATION FOR FULL_ADDER
+----------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity full_adder is
+    Port (
+           A     : in STD_LOGIC;
+           B     : in STD_LOGIC;
+           C_In  : in STD_LOGIC;
+           Sum   : out STD_LOGIC;
+           C_Out : out STD_LOGIC
+         );
+end full_adder;
+
+----------------------------------------------------------------------------------
+-- ARCHITECTURE DECLARATION FOR FULL_ADDER
+----------------------------------------------------------------------------------
+
+architecture structure of full_adder is
+
+    component xor_gate                              -- XOR Component Declaration
+        port ( i1, i2 : in std_logic; o1 : out std_logic );
+    end component;
+
+    component and_gate                              -- AND Component Declaration
+        port ( i1, i2 : in std_logic; o1 : out std_logic );
+    end component;
+
+    component or_gate                               -- OR Component Declaration
+        port ( i1, i2 : in std_logic; o1 : out std_logic );
+    end component;
+
+signal S0, S1, S2 : std_logic;                  -- Signal Declarations
+
+begin
+
+    -- top left XOR gate w/ output to signal S0
+    u1 : xor_gate port map ( i1 => A, i2 => B, o1 => S0 );
+
+    -- top right XOR gate w/ input from S0, C_In
+    u2 : xor_gate port map ( i1 => S0, i2 => C_In, o1 => Sum );
+
+    -- bottom left AND gate w/ output to signal S2
+    u3 : and_gate port map ( i1 => A, i2 => B, o1 => S2 );
+
+    -- middle AND gate w/ output to signal S1
+    u4 : and_gate port map ( i1 => S0, i2 => C_In, o1 => S1 );
+
+    -- bottom right OR gate w/ output to signal S1
+    u5 : or_gate port map ( i1 => S1, i2 => S2, o1 => C_Out );
+
+end structure;
+
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+-- ADDER_TB
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity full_adder_tb is
+end full_adder_tb;
+
+architecture full_adder_tb of full_adder_tb is
+
+    -- Declaration of component to test
+    component full_adder
+    port (
+           A     : in std_logic;
+           B     : in std_logic;
+           C_In  : in std_logic;
+           Sum   : out std_logic;
+           C_Out : out std_logic
+         );
+     end component;
+
+-- Input signals of component
+signal A     : std_logic := '0';
+signal B     : std_logic := '0';
+signal C_In  : std_logic := '0';
+
+-- Output signals of component
+signal Sum   : std_logic;
+signal C_Out : std_logic;
+
+begin
+
+    -- Instantiation of Unit Under Test (UUT)
+    UUT : full_adder
+    port map (
+               A     => A,
+               B     => B,
+               C_In  => C_In,
+               Sum   => Sum,
+               C_Out => C_Out
+             );
+
+    -- Stimulus Block to generate test signals for the UUT
+    Stim_Proc : process
+    begin
+
+        A <= '0';
+        B <= '0';
+        C_In <= '0';
+        wait for 10 ns;
+
+        A <= '1';
+        B <= '0';
+        C_In <= '0';
+        wait for 10 ns;
+
+        A <= '1';
+        B <= '1';
+        C_In <= '0';
+        wait for 10 ns;
+
+        A <= '1';
+        B <= '1';
+        C_In <= '1';
+        wait for 10 ns;
+
+    end process;
+
+end full_adder_tb;
+
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+-- MUX
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity mux_4to1 is
+    Port (
+           D0 : in STD_LOGIC;
+           D1 : in STD_LOGIC;
+           D2 : in STD_LOGIC;
+           D3 : in STD_LOGIC;
+           C0 : in STD_LOGIC;  -- Control Line 0
+           C1 : in STD_LOGIC;  -- Control Line 1
+           M  : out STD_LOGIC
+         );
+end mux_4to1;
+
+architecture structure of mux_4to1 is
+
+-- Signals from inverters, and between AND and OR gates
+signal S0, S1, S2, S3, S4, S5 : std_logic;                  -- Signal Declarations
+
+begin
+
+    S0 <= NOT C0;
+    S1 <= NOT C1;
+    S2 <= S0 AND S1 AND D0;
+    S3 <= S0 AND C1 AND D1;
+    S4 <= C0 AND S1 AND D2;
+    S5 <= C0 AND C1 AND D3;
+    M  <= S2 OR S3 OR S4 OR S5;
+
+end structure;
+
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+-- MUX_TB
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+-- Company:
+-- Engineer:
+--
+-- Create Date: 03/16/2019 04:40:26 PM
+-- Design Name:
+-- Module Name: mux_4to1_tb - mux_4to1_tb
+-- Project Name:
+-- Target Devices:
+-- Tool Versions:
+-- Description:
+--
+-- Dependencies:
+--
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+--
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity mux_4to1_tb is
+--  Port ( );
+end mux_4to1_tb;
+
+architecture mux_4to1_tb of mux_4to1_tb is
+
+    -- Declaration of component to test
+    component mux_4to1
+        Port (
+               D0 : in STD_LOGIC;
+               D1 : in STD_LOGIC;
+               D2 : in STD_LOGIC;
+               D3 : in STD_LOGIC;
+               C0 : in STD_LOGIC;  -- Control Line 0
+               C1 : in STD_LOGIC;  -- Control Line 1
+               M  : out STD_LOGIC
+             );
+    end component;
+
+-- Input signals of component
+signal D0     : std_logic := '0';
+signal D1     : std_logic := '0';
+signal D2     : std_logic := '0';
+signal D3     : std_logic := '0';
+
+signal C0     : std_logic := '0';
+signal C1     : std_logic := '0';
+
+-- Output signals of component
+signal M      : std_logic;
+
+begin
+
+    -- Instantiation of Unit Under Test (UUT)
+    UUT : mux_4to1
+    port map (
+               D0 => D0,
+               D1 => D1,
+               D2 => D2,
+               D3 => D3,
+               C0 => C0,
+               C1 => C1,
+               M  => M
+             );
+
+    -- Stimulus Block to generate test signals for the UUT
+    Stim_Proc : process
+    begin
+
+        D0 <= '1';
+        D1 <= '0';
+        D2 <= '0';
+        D3 <= '0';
+        C0 <= '0';
+        C1 <= '0';
+        wait for 10 ns;
+
+        D0 <= '0';
+        D1 <= '1';
+        D2 <= '0';
+        D3 <= '0';
+        C0 <= '0';
+        C1 <= '1';
+        wait for 10 ns;
+
+        D0 <= '0';
+        D1 <= '0';
+        D2 <= '1';
+        D3 <= '0';
+        C0 <= '1';
+        C1 <= '0';
+        wait for 10 ns;
+
+        D0 <= '0';
+        D1 <= '0';
+        D2 <= '0';
+        D3 <= '1';
+        C0 <= '1';
+        C1 <= '1';
+        wait for 10 ns;
+
+    end process;
+
+end mux_4to1_tb;
